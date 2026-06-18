@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>المحاضرة الخامسة: البريد الإلكتروني الآمن | حراس المستقبل الرقمي</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4361EE; --secondary: #3F8EFC; --accent: #F72585;
+            --success: #4CC9A6; --warning: #F9C74F; --danger: #EF476F;
+            --dark: #2B2D42; --light: #F8F9FA; --gray: #6C757D;
+            --radius: 20px; --shadow: 0 15px 40px rgba(0,0,0,0.12);
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Tajawal', sans-serif; background: linear-gradient(135deg, #eef2f3 0%, #d9e2ec 100%);
+            color: var(--dark); overflow: hidden; height: 100vh;
+        }
+        .presentation { position: relative; width: 100vw; height: 100vh; overflow: hidden; }
+        .slide {
+            position: absolute; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;
+            padding: 30px; opacity: 0; visibility: hidden; transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            transform: translateX(80px);
+        }
+        .slide.active { opacity: 1; visibility: visible; transform: translateX(0); }
+        .slide.prev { transform: translateX(-80px); }
+
+        .slide-content {
+            max-width: 1150px; width: 100%; background: white; border-radius: var(--radius);
+            box-shadow: var(--shadow); padding: 35px; position: relative; overflow-y: auto; max-height: 95vh;
+        }
+        .slide-content::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 6px; background: linear-gradient(90deg, var(--primary), var(--secondary)); }
+
+        h1 { font-size: 2.6em; font-weight: 900; text-align: center; margin-bottom: 12px; color: var(--primary); line-height: 1.3; }
+        h2 { font-size: 2em; font-weight: 800; margin-bottom: 16px; color: var(--dark); display: flex; align-items: center; gap: 10px; }
+        h3 { font-size: 1.35em; font-weight: 700; margin: 12px 0 8px; color: var(--primary); }
+        p { font-size: 1.2em; line-height: 1.6; color: var(--gray); margin-bottom: 12px; }
+        .subtitle { font-size: 1.25em; text-align: center; color: var(--gray); margin-bottom: 22px; }
+        .badge { display: inline-block; background: linear-gradient(135deg, var(--accent), #ff6b9d); color: white; padding: 6px 18px; border-radius: 50px; font-weight: 700; margin-bottom: 12px; font-size: 0.9em; }
+
+        /* 🖼️ مكان اللوجو: حط كود Base64 الخاص بشعار الأكاديمية هنا في src */
+        .logo-box {
+            width: 80px; height: 80px; background: rgba(255,255,255,0.2); border-radius: 50%;
+            margin: 0 auto 12px; display: flex; align-items: center; justify-content: center;
+            font-size: 30px; border: 3px solid rgba(255,255,255,0.4); cursor: pointer;
+        }
+        .logo-box img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: none; }
+
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 15px; }
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-top: 15px; }
+        .card {
+            background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 14px;
+            padding: 16px; transition: 0.3s; position: relative;
+        }
+        .card:hover { transform: translateY(-3px); box-shadow: 0 6px 18px rgba(0,0,0,0.08); }
+        .card h3 { font-size: 1.2em; margin-bottom: 8px; color: var(--primary); display: flex; align-items: center; gap: 6px; }
+        .card p { font-size: 1em; color: var(--gray); line-height: 1.55; margin-bottom: 0; }
+        
+        .highlight { 
+            background: linear-gradient(135deg, #e0f2fe, #bae6fd); border-right: 4px solid var(--secondary); 
+            padding: 14px; border-radius: 10px; margin: 12px 0; font-size: 1.05em;
+        }
+        .highlight strong { color: var(--primary); }
+        .tip-box {
+            background: linear-gradient(135deg, #fef3c7, #fde68a); border-right: 4px solid var(--warning);
+            padding: 14px; border-radius: 10px; margin: 12px 0; font-size: 1em;
+        }
+        .warning-box {
+            background: linear-gradient(135deg, #fee2e2, #fecaca); border-right: 4px solid var(--danger);
+            padding: 14px; border-radius: 10px; margin: 12px 0; font-size: 1em;
+        }
+        .success-box {
+            background: linear-gradient(135deg, #d1fae5, #a7f3d0); border-right: 4px solid var(--success);
+            padding: 14px; border-radius: 10px; margin: 12px 0; font-size: 1em;
+        }
+
+        .step-list { list-style: none; padding: 0; margin: 12px 0; }
+        .step-list li {
+            padding: 10px 0; border-bottom: 1px dashed #cbd5e1; display: flex; align-items: flex-start; gap: 10px; font-size: 1.05em;
+        }
+        .step-num { background: var(--accent); color: white; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; flex-shrink: 0; margin-top: 3px; font-size: 0.9em; }
+
+        .email-parts { display: flex; justify-content: space-around; gap: 15px; margin: 15px 0; flex-wrap: wrap; }
+        .email-part { flex: 1; min-width: 180px; padding: 15px; background: #f0f9ff; border-radius: 12px; text-align: center; border: 2px solid #bae6fd; }
+        .email-part strong { color: var(--primary); display: block; margin-bottom: 5px; }
+
+        .file-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin: 15px 0; }
+        .file-item { padding: 12px; border-radius: 10px; text-align: center; font-size: 0.95em; border: 2px solid transparent; }
+        .file-safe { background: #d1fae5; border-color: var(--success); color: #065f46; }
+        .file-risk { background: #fee2e2; border-color: var(--danger); color: #991b1b; }
+
+        .controls {
+            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; gap: 10px; z-index: 1000;
+            background: white; padding: 10px 20px; border-radius: 40px; box-shadow: var(--shadow);
+        }
+        .btn {
+            padding: 8px 20px; border: none; border-radius: 18px; font-family: inherit; font-weight: 700; font-size: 0.95em;
+            cursor: pointer; transition: 0.3s; display: flex; align-items: center; gap: 5px;
+        }
+        .btn-primary { background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white; }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 5px 12px rgba(67,97,238,0.4); }
+        .btn-secondary { background: #e2e8f0; color: var(--dark); }
+        .slide-counter { position: fixed; bottom: 20px; right: 20px; background: white; padding: 6px 14px; border-radius: 12px; font-weight: 700; box-shadow: 0 3px 8px rgba(0,0,0,0.1); font-size: 0.95em; }
+
+        .final-box { background: linear-gradient(135deg, #f6d365, #fda085); color: white; padding: 20px; border-radius: 14px; margin-top: 15px; text-align: center; }
+        .final-box h2 { color: white; justify-content: center; font-size: 1.8em; }
+        .final-box p { color: rgba(255,255,255,0.95); margin-bottom: 0; }
+
+        .mini-challenge {
+            background: linear-gradient(135deg, #ede9fe, #ddd6fe); border: 2px dashed var(--primary);
+            border-radius: 12px; padding: 14px; margin: 12px 0; text-align: center;
+        }
+        .mini-challenge strong { color: var(--primary); }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 1.8em; } h2 { font-size: 1.5em; } p { font-size: 1em; }
+            .slide-content { padding: 20px; } .grid-2, .grid-3, .email-parts { grid-template-columns: 1fr; flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="presentation">
+
+    <!-- سلايد 1: الافتتاح -->
+    <div class="slide active">
+        <div class="slide-content">
+            <div style="text-align:center; padding:15px 0;">
+                <div class="badge">📧 المحاضرة الخامسة</div>
+                <!-- 🖼️ مكان اللوجو: حط كود Base64 الخاص بشعار الأكاديمية هنا في src -->
+                <div class="logo-box" onclick="document.getElementById('logo-img').style.display='block'; this.style.background='none'">
+                    <span>☀️</span>
+                    <img id="logo-img" src="" alt="شعار الأكاديمية">
+                </div>
+                <h1>البريد الإلكتروني الآمن</h1>
+                <p class="subtitle">رسائلك أمانك: كيف تكتشف التصيد وتحمي مرفقاتك؟</p>
+                <div style="font-size:1.05em; color:var(--gray); margin-top:18px; display:flex; justify-content:center; gap:15px; flex-wrap:wrap;">
+                    <span>👥 آدم (13) & محمد (11)</span>
+                    <span>⏱️ 90 دقيقة</span>
+                    <span>🌐 أونلاين</span>
+                    <span>🛡️ حماية رقمية</span>
+                </div>
+            </div>
+            <div class="highlight" style="text-align:center; margin-top:18px;">
+                <strong>🎯 هدفنا النهاردة:</strong> نتعلم إزاي نقرأ الإيميل بذكاء، ونكشف الرسائل الخادعة قبل ما تفتحها!
+            </div>
+        </div>
+    </div>
+
+    <!-- سلايد 2: مراجعة + تمهيد -->
+    <div class="slide">
+        <div class="slide-content">
+            <h2>🔄 لنتذكر سوا... ونبدأ الجديد</h2>
+            <div class="grid-2">
+                <div class="card">
+                    <h3>🌐 من المحاضرة 4</h3>
+                    <p>• القفل 🔐 + https = اتصال آمن<br>• قاعدة الـ 3 خطوات: وقف - فكر - اسأل<br>• متصفح آمن = تحديثات + حظر نوافذ + كلمات سر قوية</p>
+                </div>
+                <div class="card">
+                    <h3>📬 سؤال اليوم</h3>
+                    <p>لو المتصفح "بيحمي الطريق"... إيه اللي "بيوصل الرسائل لبيتك الرقمي"؟</p>
+                </div>
+            </div>
+            <div class="highlight" style="margin-top:15px; text-align:center;">
+                <strong>الإجابة:</strong> البريد الإلكتروني! ده صندوق البريد الرقمي اللي بيوصلك كل حاجة... منها الخير ومنها الشر.
+            </div>
+            <div class="mini-challenge">
+                <strong>🎮 تحدي سريع:</strong> آدم، محمد - مين منكم عنده إيميل؟ أو ماما/بابا بيفتحوا إيميل قدامكم؟ اكتبوا في الشات!
+            </div>
+        </div>
+    </div>
+
+    <!-- سلايد 3: القصة التمهيدية -->
+    <div class="slide">
+        <div class="slide-content">
+            <h2>📖 قصة: أحمد والإيميل الغريب</h2>
+            <p>أحمد فتح إيميله الصبح... لاقى رسالة جديدة:</p>
+            <ul class="step-list">
+                <li><span class="step-num">1</span><div>المرسل: <code>support-free-gifts@xyz.net</code> 📩</div></li>
+                <li><span class="step-num">2</span><div>الموضوع: "🎁 مبروك! ربحت هاتف جديد!"</div></li>
+                <li><span class="step-num">3</span><div>المرفق: ملف اسمه <code>هدية_جديدة.exe</code> 📎</div></li>
+                <li><span class="step-num">4</span><div>أحمد همسّ يضغط... بس تذكر درسنا: "وقف - فكر - تحقق"</div></li>
+            </ul>
+            <div class="warning-box">
+                <strong>❓ السؤال الكبير:</strong> إيه اللي كان هيحصل لو أحمد فتح الملف؟
+            </div>
+            <div class="success-box">
+                <strong>💡 الدرس:</strong> الملفات التنفيذية (.exe) من مصادر مجهولة = فيروسات محتملة. التفكير قبل الفتح = خط دفاع أول!
+            </div>
+        </div>
+    </div>
+
+    <!-- سلايد 4: إيه هو البريد الإلكتروني؟ -->
+    <div class="slide">
+        <div class="slide-content">
+            <h2>📬 إيه هو البريد الإلكتروني؟ (وهويتك الرقمية)</h2>
+            <p>الإيميل مش بس رسائل... ده <strong>عنوانك الرسمي على الإنترنت</strong>:</p>
+            
+            <div class="email-parts">
+                <div class="email-part">
+                    <strong>👤 اسم المستخدم</strong>
+                    <code>ahmed.school</code>
+                </div>
+                <div class="email-part">
+                    <strong>@ الرمز السحري</strong>
+                    <code>@</code> يعني "at" (عند)
+                </div>
+                <div class="email-part">
+                    <strong>🌐 النطاق (Domain)</strong>
+                    <code>gmail.com</code> أو <code>edu.eg</code>
+                </div>
+            </div>
+
+            <div class="grid-2" style="margin-top:15px;">
+                <div class="card" style="background:#f0fdf4; border:2px solid var(--success);">
+                    <h3>✅ إيميل رسمي/مدرسي</h3>
+                    <p>بيبدأ باسمك أو رقمك، وبيكون النطاق تابع للمدرسة أو الحكومة. مثالي للتواصل الرسمي.</p>
+                </div>
+                <div class="card" style="background:#fffbeb; border:2px solid var(--warning);">
+                    <h3>⚠️ إيميل شخصي/عام</h3>
+                    <p>زي Gmail أو Yahoo. ممتاز للألعاب والتواصل، بس محتاط في الرسائل مجهولة المصدر.</p>
+                </div>
+            </div>
+
+            <div class="tip-box">
+                <strong>💬 خد التشبيه ده:</strong> الإيميل = "رقم هاتفك الرقمي" 📱<br>
+                لو واحد غلط عرفه... ممكن يبعتلك رسائل مزعجة أو يحاول يخدعك!
+            </div>
+        </div>
+    </div>
+
+    <!-- سلايد 5: أجزاء الإيميل الآمن -->
+    <div class="slide">
+        <div class="slide-content">
+            <h2>🔍 تشريح الإيميل: إزاي تقرأه بذكاء؟</h2>
+            <p>قبل ما ترد أو تفتح، راجع 3 نقاط أساسية:</p>
+            
+            <div class="grid-3">
+                <div class="card" style="text-align:center; border-top:4px solid var(--success);">
+                    <div style="font-size:2.5em;">📤</div>
+                    <h3>1. المرسل (From)</h3>
+                    <p>هل الاسم مطابق للعنوان الفعلي؟<br><code>support@facebook.com</code> ≠ <code>faceb00k-alert.net</code></p>
+                </div>
+                <div class="card" style="text-align:center; border-top:4px solid var(--warning);">
+                    <div style="font-size:2.5em;">📝</div>
+                    <h3>2. الموضوع (Subject)</h3>
+                    <p>واضح ومحدد؟ ولا مليان علامات تعجب وكلام عاجل؟<br>⚠️ "عاجل جدًا! احسب هيتمسح!"</p>
+                </div>
+                <div class="card" style="text-align:center; border-top:4px solid var(--danger);">
+                    <div style="font-size:2.5em;">📎</div>
+                    <h3>3. المرفقات (Attachments)</h3>
+                    <p>هل متوقع الملف ده؟<br>هل الامتداد آمن (.jpg, .pdf) ولا خطير (.exe, .scr)؟</p>
+                </div>
+            </div>
+
+            <div class="highlight" style="text-align:center; margin-top:15px;">
+                <strong>🛡️ القاعدة الذهبية:</strong><br>
+                أي إيميل بطلب كلمة سر، أو رقم بطاقة، أو كود تحقق... <strong>ده تصيد 100%</strong>!
+            </div>
+        </div>
+    </div>
+
+    <!-- سلايد 6: التصيد عبر الإيميل (Phishing) -->
+    <div class="slide">
+        <div class="slide-content">
+            <h2>🎣 التصيد بالإيميل: إزاي تكتشفه في ثواني؟</h2>
+            <p>محاولة خداع منظمة عشان تسرق بياناتك. بتظهر بـ 4 علامات:</p>
+            <ul class="step-list">
+                <li><span class="step-num">1</span><div>عنوان مرسل غريب أو فيه أخطاء إملائية متعمدة</div></li>
+                <li><span class="step-num">2</span><div>لغة إلحاح أو تهديد: "احسب هيتمسح خلال 24 ساعة!"</div></li>
+                <li><span class="step-num">3</span><div>روابط مختصرة أو مش واضحة الوجهة</div></li>
+                <li><span class="step-num">4</span><div>طلب بيانات شخصية أو مالية بشكل غير رسمي</div></li>
+            </ul>
+
+            <div class="warning-box" style="text-align:center; margin-top:10px;">
+                <strong>⚠️ احذر:</strong> المحتالين بيستخدموا شعارات شركات رسمية (فيسبوك، جوجل، بنوك) عشان يخلوك تصدق. الشعار مش ضمان!
+            </div>
+            <div class="success-box" style="text-align:center; margin-top:10px;">
+                <strong>✅ الحل:</strong> متدخلش للينك. افتح التطبيق أو الموقع الرسمي يدويًا من المتصفح، وتأكد بنفسك.
+            </div>
+        </div>
+    </div>
+
+    <!-- سلايد 7: أمان المرفقات -->
+    <div class="slide">
+        <div class="slide-content">
+            <h2>📎 المرفقات: أي منها تفتحه وأيه تتجنبه؟</h2>
+            <p>الملفات مش كلها آمنة. اعرف الفرق:</p>
+            
+            <div class="file-grid">
+                <div class="file-item file-safe">🖼️ .jpg / .png<br>صور آمنة</div>
+                <div class="file-item file-safe">📄 .pdf / .docx<br>مستندات شائعة</div>
+                <div class="file-item file-risk">⚠️ .exe / .bat<br>تنفيذية - خطر</div>
+                <div class="file-item file-risk">🔒 .zip / .rar<br>مضغوطة - افحصها</div>
+                <div class="file-item file-risk">📜 .js / .vbs<br>سكربتات - مشبوهة</div>
+                <div class="file-item file-safe">📊 .xlsx / .csv<br>جداول بيانات</div>
+            </div>
+
+            <div class="tip-box">
+                <strong>💡 نصيحة خبير:</strong> لو جا لك ملف مضغوط (.zip) من مجهول، <strong>مفتحهوش</strong>. لو من صديق أو مدرسة، افحصه بمضاد فيروسات قبل الفتح.
+            </div>
+        </div>
+    </div>
+
+    <!-- سلايد 8: إعدادات بريد آمن -->
+    <div class="slide">
+        <div class="slide-content">
+            <h2>🛡️ إزاي تضبط إيميلك ليكون قلعة رقمية؟</h2>
+            <p>4 خطوات بسيطة تخلي بريدك في أمان:</p>
+            
+            <div class="grid-2">
+                <div class="card">
+                    <h3>🔑 كلمة سر فريدة + 2FA</h3>
+                    <p>متستخدمش نفس كلمة سر الألعاب للإيميل. فعّل التوثيق بخطوتين عشان حتى لو كلمة السر اتسرقت، محدش يدخل.</p>
+                </div>
+                <div class="card">
+                    <h3>🔍 فلترة الرسائل غير المرغوب فيها</h3>
+                    <p>خلي Spam Filter شغال. لو رسالة غريبة راحت للـ Spam، متحاولش تنقلها للـ Inbox.</p>
+                </div>
+                <div class="card">
+                    <h3>🚫 عدم حفظ كلمة السر على أجهزة عامة</h3>
+                    <p>في مقهى أو مدرسة، استخدم "وضع الزائر" ومتسجلش دخولك على إيميلك الشخصي.</p>
+                </div>
+                <div class="card">
+                    <h3>📢 التبليغ عن التصيد</h3>
+                    <p>كل مزود إيميل فيه زرار "Report Phishing". استخدامه بيحميك وبيحمي غيرك من نفس المحتال.</p>
+                </div>
+            </div>
+
+            <div class="mini-challenge">
+                <strong>🎮 سؤال لآدم ومحمد:</strong> لو ماما قالتلك "سجل دخولك على إيميلي عشان تحمل ملف"، تعمل إيه؟ (فكروا وكتبوا رد سريع)
+            </div>
+        </div>
+    </div>
+
+    <!-- سلايد 9: الانتقال للتطبيق -->
+    <div class="slide">
+        <div class="slide-content">
+            <h2>🎮 يلا نجرب سوا!</h2>
+            <p style="text-align:center; font-size:1.2em; margin-bottom:18px;">فهمنا القواعد... دلوقتي التطبيق العملي:</p>
+            
+            <div class="grid-3">
+                <div class="card" style="text-align:center; border-top:4px solid var(--success);">
+                    <div style="font-size:2.8em;">🔍</div>
+                    <h3>كاشف الإيميلات</h3>
+                    <p>افحص مرسلين ومرفقات واكتشف الآمن</p>
+                </div>
+                <div class="card" style="text-align:center; border-top:4px solid var(--warning);">
+                    <div style="font-size:2.8em;">📝</div>
+                    <h3>اختبار سريع</h3>
+                    <p>15 سؤال عشوائي يثبت المفاهيم</p>
+                </div>
+                <div class="card" style="text-align:center; border-top:4px solid var(--accent);">
+                    <div style="font-size:2.8em;">🛠️</div>
+                    <h3>ابنِ بريدك الآمن</h3>
+                    <p>اضبط إعدادات حارسك الرقمي بنفسك</p>
+                </div>
+            </div>
+
+            <div class="highlight" style="margin-top:18px; text-align:center;">
+                <strong>🚀 جاهزين؟</strong><br>
+                آدم، محمد... افتحوا التطبيق التفاعلي دلوقتي!
+            </div>
+
+            <div class="tip-box" style="text-align:center;">
+                <strong>💡 تذكير:</strong> مفيش إجابة غلط في التعلم... المهم التجربة، الخطأ، والفهم!
+            </div>
+        </div>
+    </div>
+
+    <!-- سلايد 10: الختام والشهادة + مهمة -->
+    <div class="slide">
+        <div class="slide-content">
+            <h1 style="font-size:2.2em; margin-bottom:8px;">🎉 أحسنتوا يا حراس البريد!</h1>
+            <p class="subtitle">أتممتم المحاضرة الخامسة بنجاح</p>
+            
+            <div style="background:white; padding:22px; border-radius:14px; box-shadow:0 5px 15px rgba(0,0,0,0.1); text-align:center; border:2px dashed var(--primary); margin-top:12px;">
+                <h2 style="justify-content:center; color:var(--primary); margin-bottom:10px; font-size:1.5em;">📜 شهادة إتمام المحاضرة الخامسة</h2>
+                <p style="font-size:1.15em; margin-bottom:12px;">
+                    يشهد بأن الطالب: <strong style="color:var(--accent); font-size:1.1em;">[اسم الطالب]</strong><br>
+                    تعلم قراءة الإيميل بذكاء، كشف التصيد، وأمان المرفقات والإعدادات.
+                </p>
+                <div style="display:flex; justify-content:space-around; font-size:0.95em; color:var(--gray); margin-top:10px; flex-wrap:wrap; gap:10px;">
+                    <span>📅 التاريخ: ___/___/2026</span>
+                    <span>✍️ توقيع المدرب: _________</span>
+                    <span>🏆 المستوى: حارس بريد</span>
+                </div>
+            </div>
+
+            <div style="margin-top:18px; background:#f8fafc; padding:18px; border-radius:12px; border-right:4px solid var(--secondary);">
+                <p style="font-size:1.1em; margin-bottom:8px;"><strong>📚 مهمة بسيطة للأسبوع الجاي (اختاروا واحدة):</strong></p>
+                <ul style="padding-right:18px; font-size:1em; line-height:1.7;">
+                    <li>📬 افتحوا إيميل ماما/بابا (بإذنهم) وشوفوا: عنوان المرسل حقيقي ولا غريب؟</li>
+                    <li>👨‍👩‍👦 اسألوا ولي الأمر: "إزاي نفعّل التوثيق بخطوتين (2FA) على الإيميل؟"</li>
+                    <li>🎨 (اختياري) ارسموا "إيميل آمن" وعلّموا عليه أجزاء الحماية</li>
+                </ul>
+            </div>
+
+            <div style="margin-top:18px; text-align:center;">
+                <p style="color:var(--primary); font-weight:700; font-size:1.1em;">شكرًا على تفاعلكم الرائع... وشوفكم في المحاضرة السادسة! 👋🔐</p>
+                <p style="color:var(--gray); font-size:0.95em; margin-top:6px;">آدم & محمد: أنتم رائعون! 🌟</p>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- أزرار التحكم -->
+<div class="controls">
+    <button class="btn btn-secondary" onclick="changeSlide(-1)">◀ السابق</button>
+    <button class="btn btn-primary" onclick="changeSlide(1)">التالي ▶</button>
+</div>
+<div class="slide-counter"><span id="current">1</span> / <span id="total">10</span></div>
+
+<script>
+    let currentSlide = 0;
+    const slides = document.querySelectorAll('.slide');
+    const totalSlides = slides.length;
+
+    function updateSlides() {
+        slides.forEach((slide, index) => {
+            slide.classList.remove('active', 'prev');
+            if (index === currentSlide) slide.classList.add('active');
+            else if (index < currentSlide) slide.classList.add('prev');
+        });
+        document.getElementById('current').textContent = currentSlide + 1;
+    }
+
+    function changeSlide(direction) {
+        currentSlide += direction;
+        if (currentSlide < 0) currentSlide = 0;
+        if (currentSlide >= totalSlides) currentSlide = totalSlides - 1;
+        updateSlides();
+    }
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowLeft') changeSlide(1);
+        if (e.key === 'ArrowRight') changeSlide(-1);
+    });
+
+    let touchStartX = 0, touchEndX = 0;
+    document.addEventListener('touchstart', e => touchStartX = e.changedTouches[0].screenX);
+    document.addEventListener('touchend', e => {
+        touchEndX = e.changedTouches[0].screenX;
+        if (touchStartX - touchEndX > 50) changeSlide(1);
+        if (touchEndX - touchStartX > 50) changeSlide(-1);
+    });
+
+    updateSlides();
+</script>
+
+</body>
+</html>
